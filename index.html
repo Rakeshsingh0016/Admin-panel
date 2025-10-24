@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Clickdera - Admin Panel</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyABXl1s3AS4833KPVkJsGSpCxkvpMp0GZo",
+            authDomain: "clickdera-in.firebaseapp.com",
+            databaseURL: "https://clickdera-in-default-rtdb.firebaseio.com",
+            projectId: "clickdera-in",
+            storageBucket: "clickdera-in.firebasestorage.app",
+            messagingSenderId: "480103489083",
+            appId: "1:480103489083:web:b766ab87273e21cd8e461e",
+            measurementId: "G-61QJEZ0FQT"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: "#0D6EFD",
+                            light: "#E7F1FF",
+                        },
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#0A0A0A",
+                        "foreground-light": "#0A0A0A",
+                        "foreground-dark": "#FBFBFB",
+                        "subtle-light": "#6B7280",
+                        "subtle-dark": "#A0A0A0",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#27272A",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.75rem",
+                        lg: "1rem",
+                        xl: "1.5rem",
+                        full: "9999px",
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .admin-sidebar {
+            transition: all 0.3s ease;
+        }
+        .admin-nav-item.active {
+            background-color: #E7F1FF;
+            color: #0D6EFD;
+        }
+        .dark .admin-nav-item.active {
+            background-color: rgba(13, 110, 253, 0.2);
+            color: #93C5FD;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-foreground-light dark:text-foreground-dark font-display">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="admin-sidebar w-64 bg-white dark:bg-gray-800 shadow-lg">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M15 15l-2 5L8 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-900 dark:text-white">Clickdera Admin</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Content Management</p>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#dashboard" class="admin-nav-item active flex items-center gap-3 p-3 rounded-lg transition-colors">
+                            <span class="material-symbols-outlined">dashboard</span>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#posts" class="admin-nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <span class="material-symbols-outlined">article</span>
+                            <span>Posts Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#create" class="admin-nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <span class="material-symbols-outlined">add_circle</span>
+                            <span>Create Post</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#analytics" class="admin-nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <span class="material-symbols-outlined">analytics</span>
+                            <span>Analytics</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#reports" class="admin-nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <span class="material-symbols-outlined">flag</span>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 p-4">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white" id="page-title">Admin Dashboard</h1>
+                    <div class="flex items-center gap-4">
+                        <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <span class="material-symbols-outlined">dark_mode</span>
+                        </button>
+                        <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-semibold">
+                            A
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="p-6">
+                <!-- Dashboard Section -->
+                <section id="dashboard-section" class="space-y-6">
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Total Posts</p>
+                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white" id="total-posts">0</h3>
+                                </div>
+                                <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                                    <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">article</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Total Likes</p>
+                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white" id="total-likes">0</h3>
+                                </div>
+                                <div class="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
+                                    <span class="material-symbols-outlined text-green-600 dark:text-green-400">favorite</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Total Reports</p>
+                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white" id="total-reports">0</h3>
+                                </div>
+                                <div class="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                                    <span class="material-symbols-outlined text-yellow-600 dark:text-yellow-400">flag</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Video Posts</p>
+                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white" id="video-posts">0</h3>
+                                </div>
+                                <div class="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                                    <span class="material-symbols-outlined text-purple-600 dark:text-purple-400">play_circle</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Posts by Category</h3>
+                            <canvas id="categoryChart" height="300"></canvas>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Engagement Overview</h3>
+                            <canvas id="engagementChart" height="300"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Recent Activity</h3>
+                        <div class="space-y-4" id="recent-activity">
+                            <!-- Activity items will be loaded here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Posts Management Section -->
+                <section id="posts-section" class="hidden space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Posts Management</h2>
+                        <div class="flex gap-4">
+                            <select id="post-type-filter" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                <option value="all">All Types</option>
+                                <option value="video">Video</option>
+                                <option value="blog">Blog</option>
+                            </select>
+                            <input type="text" id="posts-search" placeholder="Search posts..." class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Title</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Category</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Likes</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Reports</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="posts-table-body" class="divide-y divide-gray-200 dark:divide-gray-600">
+                                <!-- Posts will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Create Post Section -->
+                <section id="create-section" class="hidden space-y-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Create New Post</h2>
+                    
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                        <form id="create-post-form" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Post Type</label>
+                                    <select id="post-type" name="type" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <option value="">Select Type</option>
+                                        <option value="video">Video</option>
+                                        <option value="blog">Blog</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
+                                    <select id="post-category" name="category" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <option value="">Select Category</option>
+                                        <option value="advertiser">Advertiser</option>
+                                        <option value="affiliate">Affiliate</option>
+                                        <option value="faq">FAQ</option>
+                                        <option value="case-studies">Case Studies</option>
+                                        <option value="news">News</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Title</label>
+                                <input type="text" id="post-title" name="title" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter post title">
+                            </div>
+
+                            <!-- Video Specific Fields -->
+                            <div id="video-fields" class="hidden space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Video URL</label>
+                                    <input type="url" id="video-url" name="videoUrl" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="https://example.com/video.mp4">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Thumbnail URL</label>
+                                    <input type="url" id="video-thumbnail" name="thumbnail" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="https://example.com/thumbnail.jpg">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Video Duration</label>
+                                    <input type="text" id="video-duration" name="duration" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="5:30">
+                                </div>
+                                
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="sound-enabled" name="soundEnabled" class="rounded border-gray-300 text-primary focus:ring-primary">
+                                    <label for="sound-enabled" class="text-sm text-gray-700 dark:text-gray-300">Enable sound by default</label>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Video Description</label>
+                                    <textarea id="video-description" name="description" rows="3" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter video description"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Blog Specific Fields -->
+                            <div id="blog-fields" class="hidden space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Featured Image URL</label>
+                                    <input type="url" id="blog-image" name="image" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="https://example.com/image.jpg">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Excerpt</label>
+                                    <textarea id="blog-excerpt" name="excerpt" rows="3" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Brief description of the blog post"></textarea>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Content</label>
+                                    <textarea id="blog-content" name="content" rows="10" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Write your blog post content here..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Author</label>
+                                    <input type="text" id="post-author" name="author" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" value="Clickdera Team">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Publish Date</label>
+                                    <input type="date" id="post-publish-date" name="publishDate" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-4">
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox" id="post-published" name="published" class="rounded border-gray-300 text-primary focus:ring-primary" checked>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Publish immediately</span>
+                                </label>
+                                
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox" id="post-featured" name="featured" class="rounded border-gray-300 text-primary focus:ring-primary">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Featured post</span>
+                                </label>
+                            </div>
+
+                            <div class="flex gap-4">
+                                <button type="submit" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors font-semibold">
+                                    Create Post
+                                </button>
+                                <button type="reset" class="bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors font-semibold">
+                                    Reset Form
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Analytics Section -->
+                <section id="analytics-section" class="hidden space-y-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Analytics & Reports</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Top Liked Posts</h3>
+                            <div id="top-liked-posts" class="space-y-3">
+                                <!-- Top liked posts will be loaded here -->
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Most Reported Posts</h3>
+                            <div id="top-reported-posts" class="space-y-3">
+                                <!-- Most reported posts will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Performance Over Time</h3>
+                        <canvas id="performanceChart" height="100"></canvas>
+                    </div>
+                </section>
+
+                <!-- Reports Section -->
+                <section id="reports-section" class="hidden space-y-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Content Reports</h2>
+                    
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Post Title</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Report Count</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Last Report</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reports-table-body" class="divide-y divide-gray-200 dark:divide-gray-600">
+                                <!-- Reports will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Edit Post Modal -->
+    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-auto">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Edit Post</h3>
+            </div>
+            <form id="edit-post-form" class="p-6 space-y-6">
+                <input type="hidden" id="edit-post-id">
+                <!-- Edit form fields same as create form -->
+                <div class="flex gap-4">
+                    <button type="submit" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors font-semibold">
+                        Update Post
+                    </button>
+                    <button type="button" id="cancel-edit" class="bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors font-semibold">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        class AdminManager {
+            constructor() {
+                this.posts = [];
+                this.currentSection = 'dashboard';
+                this.charts = {};
+                this.init();
+            }
+
+            async init() {
+                await this.loadPosts();
+                this.setupEventListeners();
+                this.showSection('dashboard');
+                this.updateDashboard();
+            }
+
+            async loadPosts() {
+                try {
+                    const snapshot = await database.ref('posts').once('value');
+                    const postsData = snapshot.val();
+                    
+                    if (postsData) {
+                        this.posts = Object.entries(postsData)
+                            .map(([id, post]) => ({ id, ...post }))
+                            .sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
+                    }
+                    
+                    this.renderPostsTable();
+                    this.updateDashboard();
+                } catch (error) {
+                    console.error('Error loading posts:', error);
+                }
+            }
+
+            setupEventListeners() {
+                // Navigation
+                document.querySelectorAll('.admin-nav-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const section = item.getAttribute('href').substring(1);
+                        this.showSection(section);
+                        
+                        // Update active nav item
+                        document.querySelectorAll('.admin-nav-item').forEach(nav => {
+                            nav.classList.remove('active');
+                        });
+                        item.classList.add('active');
+                    });
+                });
+
+                // Post type toggle
+                document.getElementById('post-type').addEventListener('change', (e) => {
+                    this.togglePostTypeFields(e.target.value);
+                });
+
+                // Create post form
+                document.getElementById('create-post-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.createPost();
+                });
+
+                // Theme toggle
+                document.getElementById('theme-toggle').addEventListener('click', () => {
+                    this.toggleTheme();
+                });
+
+                // Set current date as default
+                document.getElementById('post-publish-date').value = new Date().toISOString().split('T')[0];
+            }
+
+            showSection(section) {
+                // Hide all sections
+                document.getElementById('dashboard-section').classList.add('hidden');
+                document.getElementById('posts-section').classList.add('hidden');
+                document.getElementById('create-section').classList.add('hidden');
+                document.getElementById('analytics-section').classList.add('hidden');
+                document.getElementById('reports-section').classList.add('hidden');
+                
+                // Show selected section
+                document.getElementById(`${section}-section`).classList.remove('hidden');
+                
+                // Update page title
+                const titles = {
+                    'dashboard': 'Admin Dashboard',
+                    'posts': 'Posts Management',
+                    'create': 'Create New Post',
+                    'analytics': 'Analytics & Reports',
+                    'reports': 'Content Reports'
+                };
+                document.getElementById('page-title').textContent = titles[section];
+                
+                this.currentSection = section;
+                
+                // Load section-specific data
+                if (section === 'analytics') {
+                    this.loadAnalytics();
+                } else if (section === 'reports') {
+                    this.loadReports();
+                }
+            }
+
+            togglePostTypeFields(type) {
+                document.getElementById('video-fields').classList.add('hidden');
+                document.getElementById('blog-fields').classList.add('hidden');
+                
+                if (type === 'video') {
+                    document.getElementById('video-fields').classList.remove('hidden');
+                } else if (type === 'blog') {
+                    document.getElementById('blog-fields').classList.remove('hidden');
+                }
+            }
+
+            async createPost() {
+                const formData = new FormData(document.getElementById('create-post-form'));
+                const postData = {
+                    type: formData.get('type'),
+                    category: formData.get('category'),
+                    title: formData.get('title'),
+                    author: formData.get('author'),
+                    publishDate: formData.get('publishDate'),
+                    published: formData.get('published') === 'on',
+                    featured: formData.get('featured') === 'on',
+                    createdAt: Date.now(),
+                    updatedAt: Date.now()
+                };
+
+                // Add type-specific fields
+                if (postData.type === 'video') {
+                    postData.videoUrl = formData.get('videoUrl');
+                    postData.thumbnail = formData.get('thumbnail');
+                    postData.duration = formData.get('duration');
+                    postData.soundEnabled = formData.get('soundEnabled') === 'on';
+                    postData.description = formData.get('description');
+                } else if (postData.type === 'blog') {
+                    postData.image = formData.get('image');
+                    postData.excerpt = formData.get('excerpt');
+                    postData.content = formData.get('content');
+                }
+
+                try {
+                    const newPostRef = database.ref('posts').push();
+                    await newPostRef.set(postData);
+                    
+                    alert('Post created successfully!');
+                    document.getElementById('create-post-form').reset();
+                    document.getElementById('post-publish-date').value = new Date().toISOString().split('T')[0];
+                    
+                    // Reload posts
+                    await this.loadPosts();
+                } catch (error) {
+                    console.error('Error creating post:', error);
+                    alert('Failed to create post');
+                }
+            }
+
+            renderPostsTable() {
+                const tableBody = document.getElementById('posts-table-body');
+                tableBody.innerHTML = '';
+
+                this.posts.forEach(post => {
+                    const likesCount = post.likes ? Object.keys(post.likes).length : 0;
+                    const reportsCount = post.reports ? Object.keys(post.reports).length : 0;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">${post.title}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${post.type === 'video' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'}">
+                                ${post.type}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500 dark:text-gray-300">${this.formatCategory(post.category)}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500 dark:text-gray-300">${likesCount}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500 dark:text-gray-300">${reportsCount}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${post.published ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'}">
+                                ${post.published ? 'Published' : 'Draft'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="edit-post text-primary hover:text-primary/80 mr-3" data-post-id="${post.id}">Edit</button>
+                            <button class="delete-post text-red-600 hover:text-red-900 mr-3" data-post-id="${post.id}">Delete</button>
+                            <button class="toggle-post ${post.published ? 'text-yellow-600 hover:text-yellow-900' : 'text-green-600 hover:text-green-900'}" data-post-id="${post.id}">
+                                ${post.published ? 'Unpublish' : 'Publish'}
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                // Add event listeners for action buttons
+                this.setupPostActions();
+            }
+
+            setupPostActions() {
+                // Edit post
+                document.querySelectorAll('.edit-post').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const postId = e.target.getAttribute('data-post-id');
+                        this.editPost(postId);
+                    });
+                });
+
+                // Delete post
+                document.querySelectorAll('.delete-post').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const postId = e.target.getAttribute('data-post-id');
+                        this.deletePost(postId);
+                    });
+                });
+
+                // Toggle publish status
+                document.querySelectorAll('.toggle-post').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const postId = e.target.getAttribute('data-post-id');
+                        this.togglePublish(postId);
+                    });
+                });
+            }
+
+            async editPost(postId) {
+                const post = this.posts.find(p => p.id === postId);
+                if (post) {
+                    // Populate edit form and show modal
+                    // Implementation for edit functionality
+                    alert('Edit functionality would be implemented here');
+                }
+            }
+
+            async deletePost(postId) {
+                if (confirm('Are you sure you want to delete this post?')) {
+                    try {
+                        await database.ref(`posts/${postId}`).remove();
+                        await this.loadPosts();
+                        alert('Post deleted successfully!');
+                    } catch (error) {
+                        console.error('Error deleting post:', error);
+                        alert('Failed to delete post');
+                    }
+                }
+            }
+
+            async togglePublish(postId) {
+                try {
+                    const post = this.posts.find(p => p.id === postId);
+                    await database.ref(`posts/${postId}/published`).set(!post.published);
+                    await this.loadPosts();
+                } catch (error) {
+                    console.error('Error toggling publish status:', error);
+                }
+            }
+
+            updateDashboard() {
+                const totalPosts = this.posts.length;
+                const videoPosts = this.posts.filter(post => post.type === 'video').length;
+                
+                let totalLikes = 0;
+                let totalReports = 0;
+                
+                this.posts.forEach(post => {
+                    totalLikes += post.likes ? Object.keys(post.likes).length : 0;
+                    totalReports += post.reports ? Object.keys(post.reports).length : 0;
+                });
+
+                document.getElementById('total-posts').textContent = totalPosts;
+                document.getElementById('video-posts').textContent = videoPosts;
+                document.getElementById('total-likes').textContent = totalLikes;
+                document.getElementById('total-reports').textContent = totalReports;
+
+                // Update recent activity
+                this.updateRecentActivity();
+            }
+
+            updateRecentActivity() {
+                const activityContainer = document.getElementById('recent-activity');
+                const recentPosts = this.posts.slice(0, 5);
+                
+                activityContainer.innerHTML = '';
+                
+                recentPosts.forEach(post => {
+                    const activityItem = document.createElement('div');
+                    activityItem.className = 'flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg';
+                    activityItem.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 rounded-lg ${post.type === 'video' ? 'bg-purple-100 dark:bg-purple-900' : 'bg-blue-100 dark:bg-blue-900'}">
+                                <span class="material-symbols-outlined ${post.type === 'video' ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400'}">${post.type === 'video' ? 'play_circle' : 'article'}</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">${post.title}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">${new Date(post.publishDate).toLocaleDateString()} • ${this.formatCategory(post.category)}</p>
+                            </div>
+                        </div>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">${post.likes ? Object.keys(post.likes).length : 0} likes</span>
+                    `;
+                    activityContainer.appendChild(activityItem);
+                });
+            }
+
+            loadAnalytics() {
+                // Category distribution
+                const categoryData = this.getCategoryDistribution();
+                this.renderCategoryChart(categoryData);
+
+                // Engagement data
+                const engagementData = this.getEngagementData();
+                this.renderEngagementChart(engagementData);
+
+                // Performance chart
+                this.renderPerformanceChart();
+
+                // Top liked posts
+                this.renderTopLikedPosts();
+
+                // Top reported posts
+                this.renderTopReportedPosts();
+            }
+
+            getCategoryDistribution() {
+                const categories = {};
+                this.posts.forEach(post => {
+                    categories[post.category] = (categories[post.category] || 0) + 1;
+                });
+                return categories;
+            }
+
+            getEngagementData() {
+                const engagement = {
+                    videos: { likes: 0, reports: 0 },
+                    blogs: { likes: 0, reports: 0 }
+                };
+
+                this.posts.forEach(post => {
+                    const likes = post.likes ? Object.keys(post.likes).length : 0;
+                    const reports = post.reports ? Object.keys(post.reports).length : 0;
+                    
+                    if (post.type === 'video') {
+                        engagement.videos.likes += likes;
+                        engagement.videos.reports += reports;
+                    } else {
+                        engagement.blogs.likes += likes;
+                        engagement.blogs.reports += reports;
+                    }
+                });
+
+                return engagement;
+            }
+
+            renderCategoryChart(categoryData) {
+                const ctx = document.getElementById('categoryChart').getContext('2d');
+                
+                if (this.charts.category) {
+                    this.charts.category.destroy();
+                }
+
+                this.charts.category = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(categoryData).map(this.formatCategory),
+                        datasets: [{
+                            data: Object.values(categoryData),
+                            backgroundColor: [
+                                '#0D6EFD',
+                                '#4F46E5',
+                                '#06B6D4',
+                                '#10B981',
+                                '#F59E0B',
+                                '#EF4444'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            renderEngagementChart(engagementData) {
+                const ctx = document.getElementById('engagementChart').getContext('2d');
+                
+                if (this.charts.engagement) {
+                    this.charts.engagement.destroy();
+                }
+
+                this.charts.engagement = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Videos', 'Blogs'],
+                        datasets: [
+                            {
+                                label: 'Likes',
+                                data: [engagementData.videos.likes, engagementData.blogs.likes],
+                                backgroundColor: '#10B981'
+                            },
+                            {
+                                label: 'Reports',
+                                data: [engagementData.videos.reports, engagementData.blogs.reports],
+                                backgroundColor: '#EF4444'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            renderPerformanceChart() {
+                const ctx = document.getElementById('performanceChart').getContext('2d');
+                
+                // Generate sample performance data (in real app, this would come from analytics)
+                const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+                const postsData = [5, 8, 12, 7, 15, 10];
+                const likesData = [45, 78, 120, 85, 180, 150];
+                const reportsData = [2, 1, 5, 3, 8, 4];
+
+                if (this.charts.performance) {
+                    this.charts.performance.destroy();
+                }
+
+                this.charts.performance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Posts',
+                                data: postsData,
+                                borderColor: '#0D6EFD',
+                                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Likes',
+                                data: likesData,
+                                borderColor: '#10B981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Reports',
+                                data: reportsData,
+                                borderColor: '#EF4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            renderTopLikedPosts() {
+                const container = document.getElementById('top-liked-posts');
+                const topLiked = [...this.posts]
+                    .sort((a, b) => {
+                        const aLikes = a.likes ? Object.keys(a.likes).length : 0;
+                        const bLikes = b.likes ? Object.keys(b.likes).length : 0;
+                        return bLikes - aLikes;
+                    })
+                    .slice(0, 5);
+
+                container.innerHTML = '';
+                topLiked.forEach(post => {
+                    const likes = post.likes ? Object.keys(post.likes).length : 0;
+                    const item = document.createElement('div');
+                    item.className = 'flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg';
+                    item.innerHTML = `
+                        <span class="text-sm text-gray-900 dark:text-white truncate flex-1 mr-2">${post.title}</span>
+                        <span class="text-sm font-semibold text-green-600 dark:text-green-400">${likes} likes</span>
+                    `;
+                    container.appendChild(item);
+                });
+            }
+
+            renderTopReportedPosts() {
+                const container = document.getElementById('top-reported-posts');
+                const topReported = [...this.posts]
+                    .sort((a, b) => {
+                        const aReports = a.reports ? Object.keys(a.reports).length : 0;
+                        const bReports = b.reports ? Object.keys(b.reports).length : 0;
+                        return bReports - aReports;
+                    })
+                    .slice(0, 5);
+
+                container.innerHTML = '';
+                topReported.forEach(post => {
+                    const reports = post.reports ? Object.keys(post.reports).length : 0;
+                    const item = document.createElement('div');
+                    item.className = 'flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg';
+                    item.innerHTML = `
+                        <span class="text-sm text-gray-900 dark:text-white truncate flex-1 mr-2">${post.title}</span>
+                        <span class="text-sm font-semibold text-yellow-600 dark:text-yellow-400">${reports} reports</span>
+                    `;
+                    container.appendChild(item);
+                });
+            }
+
+            loadReports() {
+                const tableBody = document.getElementById('reports-table-body');
+                tableBody.innerHTML = '';
+
+                const reportedPosts = this.posts.filter(post => post.reports && Object.keys(post.reports).length > 0)
+                    .sort((a, b) => {
+                        const aReports = Object.keys(a.reports).length;
+                        const bReports = Object.keys(b.reports).length;
+                        return bReports - aReports;
+                    });
+
+                reportedPosts.forEach(post => {
+                    const reportsCount = Object.keys(post.reports).length;
+                    const lastReport = Math.max(...Object.values(post.reports).map(timestamp => timestamp));
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">${post.title}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${post.type === 'video' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'}">
+                                ${post.type}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500 dark:text-gray-300">${reportsCount}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500 dark:text-gray-300">${new Date(lastReport).toLocaleDateString()}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="view-post text-primary hover:text-primary/80 mr-3" data-post-id="${post.id}">View</button>
+                            <button class="clear-reports text-green-600 hover:text-green-900" data-post-id="${post.id}">Clear Reports</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+
+            formatCategory(category) {
+                const categoryMap = {
+                    'advertiser': 'Advertiser',
+                    'affiliate': 'Affiliate',
+                    'faq': 'FAQ',
+                    'case-studies': 'Case Studies',
+                    'news': 'News'
+                };
+                return categoryMap[category] || category;
+            }
+
+            toggleTheme() {
+                const html = document.documentElement;
+                if (html.classList.contains('dark')) {
+                    html.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    html.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                }
+            }
+        }
+
+        // Initialize the admin manager when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new AdminManager();
+        });
+    </script>
+</body>
+</html>
